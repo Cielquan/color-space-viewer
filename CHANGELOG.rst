@@ -1,5 +1,6 @@
 color_space_viewer Change Log
 =============================
+
 .. note::
   These changes are listed in decreasing version number order and not necessarily chronological.
   Version numbers follow the `SemVer <https://semver.org/>`__ principle.
