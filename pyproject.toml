@@ -51,7 +51,7 @@
             "pytest-randomly",
         ]
         docs = [
-            "sphinx",
+            "sphinx", "python-dotenv",
             "sphinx-rtd-theme",
             "sphinx-autodoc-typehints",
             "sphinxcontrib-apidoc",
