@@ -1,0 +1,185 @@
+minimum_pre_commit_version: "1.15"
+default_stages: [commit, push]
+
+repos:
+#: -----------------------------------------------------------------------------
+#: Meta hooks
+#: -----------------------------------------------------------------------------
+  #: Meta hooks provided by pre-commit
+  - repo: meta
+    hooks:
+      - id: identity
+        stages: [manual]
+      - id: check-hooks-apply
+        stages: [manual]
+      - id: check-useless-excludes
+        stages: [manual]
+
+
+#: -----------------------------------------------------------------------------
+#: Commit hooks
+#: -----------------------------------------------------------------------------
+  #: code unspecific out-of-the-box hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: e1668fe86af3810fbca72b8653fe478e66a0afdc  # frozen: v3.2.0
+    hooks:
+      - id: no-commit-to-branch
+        args: [
+          --branch, staging,
+          --branch, master,
+          --pattern, release/.*,
+        ]
+      - id: check-case-conflict
+      - id: name-tests-test
+        args: ["--django"]
+      - id: check-json
+      - id: pretty-format-json
+        args: ["--indent=4", "--autofix"]
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: trailing-whitespace
+        stages: [commit, push]
+      - id: end-of-file-fixer
+        stages: [commit, push]
+
+  #: several python code regex hooks
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: eae6397e4c259ed3d057511f6dd5330b92867e62  # frozen: v1.6.0
+    hooks:
+      - id: python-no-log-warn
+      - id: python-no-eval
+
+  #: pyupgrade - upgrade old python syntax to new
+  - repo: https://github.com/asottile/pyupgrade
+    rev: f766c29ec4bb6cf2674b81959871e59d5400380a  # frozen: v2.7.2
+    hooks:
+      - id: pyupgrade
+        args: [--py36-plus]
+
+  #: isort - sort imports
+  #: Inline skip: `# isort: skip`
+  - repo: https://github.com/timothycrosley/isort
+    rev: 377d260ffa6f746693f97b46d95025afc4bd8275  # frozen: 5.4.2
+    hooks:
+      - id: isort
+
+  #: blacken-docs - black for python code in docs
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 6d80883e826e3490b002dcf90c6807f85d42c871  # frozen: v1.8.0
+    hooks:
+      - id: blacken-docs
+        additional_dependencies: [black==19.10b0]
+
+  #: black - python formatter
+  #: Inline skip: mark block with `# fmt: off` and `# fmt: on` (same indent)
+  - repo: https://github.com/psf/black
+    rev: 6bedb5c58a7d8c25aa9509f8217bc24e9797e90d  # frozen: 19.10b0
+    hooks:
+      - id: black
+        args: [--safe]
+
+  #: bandit - python code security analyzer
+  #: Inline skip: `# nosec`
+  - repo: https://github.com/PyCQA/bandit
+    rev: d25f3fc5f0f2bd8a251f252e9d81118c4947ae0e  # frozen: 1.6.2
+    hooks:
+      - id: bandit
+        require_serial: true
+        exclude: tests/.*$
+
+  #: flake8 - python linter
+  #: File skip: `# flake8: noqa`
+  #: Inline skip: `# noqa` or `# noqa: CODE,...`
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 05f6544aef321e2fee03a1277ce2eef8880fb927  # frozen: 3.8.3
+    hooks:
+      - id: flake8
+        args: [--min-python-version=3.6.1]
+        additional_dependencies:
+          #: Colored output - needs custom format
+          - "flake8-colors"
+          #: Finding likely bugs and design problems
+          #: B001-B014 | B301-B306 | B901-B903,B950
+          - "flake8-bugbear==20.1.4"
+          #: Write better list/set/dict comprehensions
+          #: C400-C416
+          - "flake8-comprehensions==3.2.2"
+          #: Check docstrings with PEP257
+          #: D100-D107 | D200-D215 | D300-D302 | D400-D417
+          - "flake8-docstrings==1.5.0"
+          - "pydocstyle==5.0.2"
+          #: Find dead/out-commented code
+          #: E800
+          - "flake8-eradicate==0.3.0"
+          #: Validate (lack of) logging format strings
+          #: G001-G004, G010 | G100 | G200-G202
+          - "flake8-logging-format==0.6.0"
+          #: Find line breaks with '\'
+          #: N400
+          - "flake8-broken-line==0.2.0"
+          #: Check your code against PEP 8 naming conventions
+          #: N801-N807, N811-N817
+          - "pep8-naming==0.10.0"
+          #: Find mutable default assignments in func/class definitions
+          #: M511
+          - "flake8-mutable==1.2.0"
+          #: Check common style issues or inconsistencies with pytest-based tests
+          #: PT001-PT019
+          - "flake8-pytest-style==1.1.1"
+          #: Check if typing imports are properly guarded
+          #: TYP001 - TYP006
+          - "flake8-typing-imports==1.9.0"
+          #: Find strings with leading 'u'
+          #: UPS
+          - "flake8-no-u-prefixed-strings==0.2"
+          #: Make more readable variables names
+          #: VNE001-VNE003
+          - "flake8-variables-names==0.0.3"
+          #: Checks for misuse of sys.version or sys.version_info (Py 3.10 / 4.0 coming)
+          #: YTT101-YTT103 | YTT201-YTT204 | YTT301-YTT303
+          - "flake8-2020==1.6.0"
+
+# TODO: 06.06.2020: Fix PR merge https://github.com/python-poetry/poetry/issues/2457
+  #: poetry - dependency and packaging management
+  - repo: https://github.com/Cielquan/poetry
+    rev: 901008fd458066b613b42baf617cfa28ef602cbc
+    hooks:
+      #: Check config file
+      - id: poetry-check
+      #: Update lock file
+      - id: poetry-lock
+
+  #: rstcheck
+  - repo: https://github.com/myint/rstcheck
+    rev: 3f92957478422df87bd730abde66f089cc1ee19b  # bleeding edge
+    hooks:
+      - id: rstcheck
+        args: ["--config=tox.ini"]
+        additional_dependencies:
+          - "sphinx"
+
+
+  #: Hooks managed via tox `pre-commit` venv
+  - repo: local
+    hooks:
+      #: pylint - python linter
+      #: File skip: `# pylint: skip-file`
+      #: Inline change: `# pylint: disable|enable=CODE|NAME`
+      - id: pylint
+        name: pylint
+        description: run pylint over the installed version if available
+        entry: python .tox_env_exe_runner.py pylint pre-commit,dev
+        language: system
+        types: [python]
+      #: mypy - python type checker
+      #: Skip file: `# type: ignore` at top
+      #: Inline skip: `# type: ignore` or `# type: ignore[CODE, ...]`
+      - id: mypy
+        args: ["--config-file=tox.ini"]
+        name: mypy
+        description: run mypy over the installed version if available
+        entry: python .tox_env_exe_runner.py mypy pre-commit,dev
+        language: system
+        types: [python]
+        require_serial: true

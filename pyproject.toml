@@ -1,0 +1,179 @@
+[build-system]
+    requires = ["poetry>=0.12"]
+    build-backend = "poetry.masonry.api"
+
+
+#: -- POETRY CONFIG --------------------------------------------------------------------
+[tool.poetry]
+    name = "color_space_viewer"
+    version = "0.1.0"
+    description = "View your color space."
+    authors = ["Cielquan <cielquan@protonmail.com>"]
+    license = "GPL-3.0-or-later"
+    repository = "https://github.com/Cielquan/color-space-viewer"
+    readme = "README.rst"
+    packages = [
+        { include = "color_space_viewer", from = "src" },
+    ]
+
+    [tool.poetry.dependencies]
+        python = "^3.6.1"
+        importlib-metadata = {version = "^1.7", python = "<3.8"}
+        #: Testing
+        pytest = {version = "^6", optional = true}
+        pytest-xdist = {version = "^1.34", optional = true}
+        pytest-cov = {version = "^2.10", optional = true}
+        coverage = {extras = ["toml"], version = "^5.2.1", optional = true}
+        pytest-sugar = {version = "^0.9.4", optional = true}
+        pytest-randomly = {version = "^3.4", optional = true}
+        #: Docs
+        sphinx = {version = "^3.1", optional = true}
+        python-dotenv = {version = "^0.14.0", optional = true}
+        sphinx-rtd-theme = {version = "^0.5", optional = true}
+        sphinx-autodoc-typehints = {version = "^1.10.3", optional = true}
+        sphinxcontrib-apidoc = {version = "^0.3.0", optional = true}
+        #: Code check
+        pre-commit = {version = "^2.7", optional = true}
+        mypy = {version = "0.782", optional = true}
+        pylint = {version = "^2.6", optional = true}
+
+    [tool.poetry.dev-dependencies]
+        devtools = {version = "^0.6", extras = ["pygments"]}
+        towncrier = {version = "19.9.0rc1"}
+        ipython = "^7.15.0"
+        sphinx-autobuild = "^0.7.1"
+
+    [tool.poetry.extras]
+        testing = [
+            "pytest", "pytest-xdist",
+            "pytest-cov", "coverage",
+            "pytest-sugar",
+            "pytest-randomly",
+        ]
+        docs = [
+            "sphinx",
+            "sphinx-rtd-theme",
+            "sphinx-autodoc-typehints",
+            "sphinxcontrib-apidoc",
+        ]
+        pre-commit = ["pre-commit", "mypy", "pylint"]
+
+
+#: -- TOWNCRIER CONFIG -----------------------------------------------------------------
+[tool.towncrier]
+    package = "color_space_viewer"
+    package_dir = "src"
+    # single_file = true  # if false, filename is formatted like `title_format`.
+    filename = "CHANGELOG.rst"
+    directory = "docs/.changes"
+    template = "docs/.changes/template.jinja2"
+    # start_line = "start of generated content" # u".. towncrier release notes start\n"
+    title_format = "v{version} ({project_date})"
+    issue_format = "`#{issue} <https://github.com/Cielquan/color-space-viewer/issues/{issue}>`_"
+    underlines = ["-", "~"]
+    wrap = false  # Wrap text to 79 characters
+    all_bullets = true  # make all fragments bullet points
+
+    [[tool.towncrier.type]]
+        directory = "bugfix"
+        name = "Bugfixes"
+        showcontent = true
+
+    [[tool.towncrier.type]]
+        directory = "feature"
+        name = "New Features"
+        showcontent = true
+
+    [[tool.towncrier.type]]
+        directory = "breaking"
+        name = "Backwards incompatible changes"
+        showcontent = true
+
+    [[tool.towncrier.type]]
+        directory = "deprecation"
+        name = "Deprecations (removal in next major release)"
+        showcontent = true
+
+    [[tool.towncrier.type]]
+        directory = "doc"
+        name = "Documentation"
+        showcontent = true
+
+    [[tool.towncrier.type]]
+        directory = "misc"
+        name = "Miscellaneous"
+        showcontent = true
+
+
+#: -- BLACK CONFIG ---------------------------------------------------------------------
+[tool.black]
+    line-length = 88
+    exclude = "venv/"
+    include = '\.pyi?$'
+
+
+#: -- ISORT CONFIG ---------------------------------------------------------------------
+[tool.isort]
+    profile = "black"
+    lines_after_imports = 2
+    lines_between_types = 1
+    skip_gitignore = true
+
+
+#: -- PYLINT CONFIG --------------------------------------------------------------------
+[tool.pylint.master]
+    additional-builtins = "tags"
+
+[tool.pylint.messages_control]
+    disable = "C0330, C0326"  #: deactivated for black
+
+[tool.pylint.format]
+    max-line-length = "88"
+
+
+#: -- COVERAGE CONFIG ------------------------------------------------------------------
+[tool.coverage]
+    [tool.coverage.run]
+        branch = true
+        parallel = true
+        context = "static-context"
+        omit = [
+            "tests/*",
+            "docs/*",
+        ]
+
+    [tool.coverage.paths]
+        combine = [
+            "src/color_space_viewer",
+            "*/.tox/*/lib/python*/site-packages/color_space_viewer",
+            "*/.tox/pypy*/site-packages/color_space_viewer",
+            "*/.tox\\*\\Lib\\site-packages\\color_space_viewer",
+            "*/src/color_space_viewer",
+            "*\\src\\color_space_viewer",
+        ]
+
+    [tool.coverage.report]
+        #fail_under = 100
+        show_missing = true
+        exclude_lines = [
+            "# pragma: no cover",
+            "if __name__ == ['\"]__main__['\"]:",
+            "def __str__",
+            "def __repr__",
+            "if self.debug:",
+            "if settings.DEBUG",
+            "if 0:",
+            "if False:",
+            "if TYPE_CHECKING:",
+            "if MYPY:",
+        ]
+
+    [tool.coverage.html]
+        show_contexts = true
+
+
+#: -- PYTEST CONFIG --------------------------------------------------------------------
+[tool.pytest.ini_options]
+    addopts = "-ra --showlocals"
+    mock_use_standalone_module = true
+    junit_family = "xunit2"
