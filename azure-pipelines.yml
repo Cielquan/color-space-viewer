@@ -49,4 +49,4 @@ jobs:
           display_name: docs_test_doctest
       coverage:
         with_toxenv: 'coverage'
-        for_envs: [py36, py37, py38, py39, pypy3]
+        for_envs: [py36, py37, py38, pypy3]
